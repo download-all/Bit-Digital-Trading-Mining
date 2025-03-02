@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+</head>
+<body style="background-color: black; color: yellow; text-align: center;">
+
+    <h2>Welcome to Your Dashboard</h2>
+    <p id="userEmail"></p>
+    <p>Investment: $<span id="investment">0</span></p>
+    <p>Balance: $<span id="balance">0</span></p>
+    <button onclick="logout()">Logout</button>
+
+    <script>
+        // Your Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Fetch user data from Firestore
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById("userEmail").innerText = `Logged in as: ${user.email}`;
+                db.collection("users").doc(user.uid).get().then(doc => {
+                    if (doc.exists) {
+                        document.getElementById("investment").innerText = doc.data().investment;
+                        document.getElementById("balance").innerText = doc.data().balance;
+                    }
+                });
+            } else {
+                window.location.href = "index.html"; // Redirect if not logged in
+            }
+        });
+
+        // Logout Function
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = "index.html";
+            });
+        }
+    </script>
+</body>
+</html>
